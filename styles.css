@@ -1,145 +1,161 @@
-/* Charity: water Brand Colors & Fonts
-
-Primary Colors:
-- Yellow:     #FFC907
-- Blue:       #2E9DF7
-
-Secondary Colors:
-- Light Blue: #8BD1CB
-- Green:      #4FCB53
-- Orange:     #FF902A
-- Red:        #F5402C
-- Dark Green: #159A48
-- Pink:       #F16061
-
-Fonts:
-- Proxima Nova
-- Avenir
-
-*/
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* General Reset + Layout */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f2fdfb;
+  text-align: center;
 }
 
 .game-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
-.score-panel {
-    display: flex;
-    justify-content: space-between;  /* Space between score and button */
-    align-items: center;
-    width: 800px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.timer {
-    flex: 0 1 auto;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-#game-container {
-    width: 800px;
-    height: 600px;
-    background-color: #e6f7ff;
-    border: 2px solid #333;
-    border-radius: 8px;
-    position: relative;
-    overflow: hidden;
-}
-
-
-#start-btn {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-#start-btn:hover {
-    background-color: #45a049;
-}
-
-.score {
-    flex: 0 1 auto;  /* Don't grow, can shrink, auto basis */
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.water-drop {
-    position: absolute;
-    width: 60px;  /* increased from 40px */
-    height: 60px; /* increased from 40px */
-    background-color: #0099ff;
-    border-radius: 50%;
-    animation: dropFall linear forwards;
-    transform-origin: center;
-    cursor: pointer;
-    padding: 15px;  /* Add padding for larger click area */
-    margin: -15px;  /* Offset padding to maintain visual size */
-    transition: transform 0.1s ease;  /* Smooth hover effect */
-}
-
-.water-drop:hover {
-    transform: scale(1.1);  /* Slight grow effect on hover */
-}
-
-.bad-drop {
-    background-color: #ff4444;
+/* Start screen */
+#start-screen {
+  padding: 40px 20px;
 }
 
 .game-title {
-    color: #131313;
-    font-size: 48px;
-    margin-top: 0;
-    margin-bottom: 5px;  /* reduced from 20px */
-    text-align: center;
+  font-size: 2.5em;
+  color: #0077b6;
 }
 
 .game-tagline {
-    color: #666;
-    font-size: 18px;
-    margin-bottom: 20px;
-    text-align: center;
+  font-size: 1.2em;
+  color: #333;
 }
 
-@keyframes dropFall {
-    from {
-        transform: translateY(-20px);
-    }
-    to {
-        transform: translateY(600px);
-    }
+/* Score + Timer */
+.score-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
-@media (max-width: 850px) {
-    .game-wrapper, .score-panel, #game-container {
-        width: 95vw;
-    }
-    
-    #game-container {
-        height: 70vh;
-    }
+.score, .timer {
+  font-size: 1.3em;
+  font-weight: bold;
 }
+
+/* Drop Zone */
+#game-container {
+  background-color: #e0f7fa;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #0077b6;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* Where drops fall */
+#drop-zone {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Falling Drop Animation */
+@keyframes fall {
+  0% { top: -60px; opacity: 1; }
+  100% { top: 100%; opacity: 0.7; }
+}
+
+.water-drop {
+  position: absolute;
+  top: 0;
+  border-radius: 50%;
+  animation-name: fall;
+  animation-timing-function: linear;
+  background-color: #00b4d8;
+  cursor: grab;
+}
+
+/* Different drop types */
+.water-drop.clean {
+  background-color: #00b4d8;
+  border: 2px solid #fff;
+}
+
+.water-drop.dirty1 {
+  background-color: #c2b280;
+}
+
+.water-drop.dirty2 {
+  background-color: #8d6e63;
+}
+
+.water-drop.dirty3 {
+  background-color: #6a4f4b;
+}
+
+/* Bins */
+.bins {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.bin {
+  background-color: #d9f5ff;
+  border: 2px dashed #0077b6;
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 80px;
+  font-weight: bold;
+  color: #0077b6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .bin-img {
+  width: 60px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+}
+
+
+/* Feedback messages */
+#feedback {
+  font-size: 1.5em;
+  color: green;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+  height: 1.5em;
+}
+
+/* Buttons */
+button {
+  padding: 10px 18px;
+  font-size: 1em;
+  background-color: #0077b6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005b88;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .bins {
+    grid-template-columns: 1fr;
+  }
+
+  .score-panel {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+

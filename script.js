@@ -1,45 +1,156 @@
-// Variables to control game state
-let gameRunning = false; // Keeps track of whether game is active or not
-let dropMaker; // Will store our timer that creates drops regularly
+let gameRunning = false;
+let dropMaker;
+let score = 0;
+let timer = 30;
+let countdown;
 
-// Wait for button click to start the game
 document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("quit-btn").addEventListener("click", quitGame);
 
 function startGame() {
-  // Prevent multiple games from running at once
   if (gameRunning) return;
-
   gameRunning = true;
 
-  // Create new drops every second (1000 milliseconds)
-  dropMaker = setInterval(createDrop, 1000);
+  // UI updates
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("game-ui").style.display = "block";
+
+  // Start score + timer
+  score = 0;
+  timer = 30;
+  updateScore();
+  updateTimer();
+
+  // Start countdown + drop creation
+  countdown = setInterval(() => {
+    timer--;
+    updateTimer();
+    if (timer <= 0) endGame();
+  }, 1000);
+
+  dropMaker = setInterval(createDrop, 1200);
+}
+
+function quitGame() {
+  endGame(true);
+}
+
+function endGame(quit = false) {
+  clearInterval(dropMaker);
+  clearInterval(countdown);
+  gameRunning = false;
+
+  document.getElementById("game-ui").style.display = "none";
+  document.getElementById("start-screen").style.display = "block";
+
+  const message = quit
+    ? "Game ended early."
+    : score >= 30
+    ? "Level 3 complete! Well done!"
+    : score >= 20
+    ? "Level 2 complete!"
+    : score >= 10
+    ? "Level 1 complete!"
+    : "Try again!";
+
+  // 🎉 Confetti for winners!
+  if (!quit && score >= 30) {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+
+  const learnMore = "\n\nLearn more: https://www.charitywater.org";
+  alert(`Game Over! ${message} Your final score: ${score}.${learnMore}`);
+}
+
+
+
+function updateScore() {
+  document.getElementById("score").textContent = score;
+}
+
+function updateTimer() {
+  document.getElementById("time").textContent = timer;
 }
 
 function createDrop() {
-  // Create a new div element that will be our water drop
   const drop = document.createElement("div");
-  drop.className = "water-drop";
+  drop.classList.add("water-drop");
 
-  // Make drops different sizes for visual variety
-  const initialSize = 60;
-  const sizeMultiplier = Math.random() * 0.8 + 0.5;
-  const size = initialSize * sizeMultiplier;
+  // Random type
+  const types = ["clean", "dirty1", "dirty2", "dirty3"];
+  const type = types[Math.floor(Math.random() * types.length)];
+  drop.classList.add(type);
+  drop.setAttribute("draggable", true);
+  drop.dataset.type = type;
+
+  // Random size + position
+  const size = 60 * (Math.random() * 0.8 + 0.5);
   drop.style.width = drop.style.height = `${size}px`;
 
-  // Position the drop randomly across the game width
-  // Subtract 60 pixels to keep drops fully inside the container
-  const gameWidth = document.getElementById("game-container").offsetWidth;
-  const xPosition = Math.random() * (gameWidth - 60);
-  drop.style.left = xPosition + "px";
+  const gameWidth = document.getElementById("drop-zone").offsetWidth;
+  drop.style.left = Math.random() * (gameWidth - 60) + "px";
 
-  // Make drops fall for 4 seconds
+  // Animate fall
   drop.style.animationDuration = "4s";
 
-  // Add the new drop to the game screen
-  document.getElementById("game-container").appendChild(drop);
+  // Add drop to game
+  document.getElementById("drop-zone").appendChild(drop);
 
-  // Remove drops that reach the bottom (weren't clicked)
+  // Drag & Drop listeners
+  drop.addEventListener("dragstart", dragStart);
+
   drop.addEventListener("animationend", () => {
-    drop.remove(); // Clean up drops that weren't caught
+    drop.remove();
+    score -= 10;
+    updateScore();
+    showFeedback("Wrong!");
   });
 }
+
+function dragStart(e) {
+  e.dataTransfer.setData("type", e.target.dataset.type);
+  e.dataTransfer.setData("elementId", e.target.id);
+}
+
+const bins = document.querySelectorAll(".bin");
+bins.forEach((bin) => {
+  bin.addEventListener("dragover", (e) => e.preventDefault());
+
+  bin.addEventListener("drop", (e) => {
+    const dropType = e.dataTransfer.getData("type");
+    const dropEl = document.querySelector(`[data-type="${dropType}"]`);
+
+    const target = e.currentTarget.dataset.filter;
+
+    // Remove drop from screen
+    if (dropEl) dropEl.remove();
+
+    // Check match
+    if (
+  (dropType === "clean" && target === "clean") ||
+  ((dropType === "dirty1" || dropType === "dirty2" || dropType === "dirty3") && target === "level3")
+) {
+      score += 10;
+      showFeedback("Filtered!");
+    } else {
+      score -= 10;
+      showFeedback("Wrong!");
+    }
+
+    updateScore();
+  });
+});
+
+function showFeedback(text) {
+  const feedback = document.getElementById("feedback");
+  feedback.textContent = text;
+  feedback.style.opacity = 1;
+  setTimeout(() => {
+    feedback.style.opacity = 0;
+  }, 1000);
+}
+

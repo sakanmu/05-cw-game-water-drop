@@ -1,25 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Drop Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filter Frenzy Challenge</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="game-wrapper">
-        <h1 class="game-title">Water Drop</h1>
-        <p class="game-tagline">Catch the good drops, avoid the bad ones!</p>
-        <div class="score-panel">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="timer">Time: <span id="time">30</span>s</div>
-            <button id="start-btn">Start Game</button>
-        </div>
-        
-        <div id="game-container">
-        </div>
+  <div class="game-wrapper">
+    <!-- Title Screen -->
+    <div id="start-screen">
+      <h1 class="game-title">Filter Frenzy Challenge</h1>
+      <p class="game-tagline">Sort the water drops before time runs out!</p>
+      <button id="start-btn">Start Game</button>
     </div>
-    
-    <script src="script.js"></script>
+
+    <!-- Game UI -->
+<div id="game-ui" style="display: none;">
+  <div class="score-panel">
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="timer">Time: <span id="time">30</span>s</div>
+    <button id="quit-btn">Quit</button>
+  </div>
+
+  <!-- Drop Zone -->
+  <div id="game-container">
+    <div id="drop-zone"></div>
+  </div>
+
+  <!-- Bins Section (Make sure this is OUTSIDE of drop-zone!) -->
+  <div class="bins">
+  <div class="bin" id="bin-full" data-filter="level3">
+    <img src="img/FilteringBin.png" alt="Filtering Bin" class="bin-img" />
+    <div>Gravel + Soil + Cloth</div>
+  </div>
+  <div class="bin" id="bin-glass" data-filter="clean">
+    <img src="img/DrinkingGlass.png" alt="Drinking Glass" class="bin-img" />
+    <div>Drinking Glass</div>
+  </div>
+</div>
+
+
+  <!-- Feedback -->
+  <div id="feedback"></div>
+</div>
+
+
+      <!-- Feedback messages -->
+      <div id="feedback"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </body>
 </html>
+
