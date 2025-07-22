@@ -43,6 +43,7 @@ function endGame(quit = false) {
   document.getElementById("game-ui").style.display = "none";
   document.getElementById("start-screen").style.display = "block";
 
+  const learnMore = "\nLearn More: https://www.charitywater.org";
   const message = quit
     ? "Game ended early."
     : score >= 30
@@ -53,20 +54,12 @@ function endGame(quit = false) {
     ? "Level 1 complete!"
     : "Try again!";
 
-  // 🎉 Confetti for winners!
   if (!quit && score >= 30) {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
+    launchConfetti();
   }
 
-  const learnMore = "\n\nLearn more: https://www.charitywater.org";
-  alert(`Game Over! ${message} Your final score: ${score}.${learnMore}`);
+  alert(`Game Over! ${message} Your final score: ${score}${learnMore}`);
 }
-
-
 
 function updateScore() {
   document.getElementById("score").textContent = score;
@@ -102,6 +95,7 @@ function createDrop() {
 
   // Drag & Drop listeners
   drop.addEventListener("dragstart", dragStart);
+  drop.addEventListener("touchstart", touchStart, { passive: true });
 
   drop.addEventListener("animationend", () => {
     drop.remove();
@@ -116,6 +110,62 @@ function dragStart(e) {
   e.dataTransfer.setData("elementId", e.target.id);
 }
 
+// Mobile touch support
+let draggedElement = null;
+
+function touchStart(e) {
+  draggedElement = e.target;
+  document.addEventListener("touchmove", touchMove);
+  document.addEventListener("touchend", touchEnd);
+}
+
+function touchMove(e) {
+  const touch = e.touches[0];
+  draggedElement.style.position = "absolute";
+  draggedElement.style.left = touch.pageX - 30 + "px";
+  draggedElement.style.top = touch.pageY - 30 + "px";
+}
+
+function touchEnd(e) {
+  const bins = document.querySelectorAll(".bin");
+  bins.forEach((bin) => {
+    const rect = bin.getBoundingClientRect();
+    const touch = e.changedTouches[0];
+
+    if (
+      touch.pageX >= rect.left &&
+      touch.pageX <= rect.right &&
+      touch.pageY >= rect.top &&
+      touch.pageY <= rect.bottom
+    ) {
+      const dropType = draggedElement.dataset.type;
+      const target = bin.dataset.filter;
+
+      if (draggedElement) draggedElement.remove();
+
+      if (
+        (dropType === "clean" && target === "clean") ||
+        ((dropType === "dirty1" ||
+          dropType === "dirty2" ||
+          dropType === "dirty3") &&
+          target === "level3")
+      ) {
+        score += 10;
+        showFeedback("Filtered!");
+      } else {
+        score -= 10;
+        showFeedback("Wrong!");
+      }
+
+      updateScore();
+    }
+  });
+
+  document.removeEventListener("touchmove", touchMove);
+  document.removeEventListener("touchend", touchEnd);
+  draggedElement = null;
+}
+
 const bins = document.querySelectorAll(".bin");
 bins.forEach((bin) => {
   bin.addEventListener("dragover", (e) => e.preventDefault());
@@ -123,17 +173,17 @@ bins.forEach((bin) => {
   bin.addEventListener("drop", (e) => {
     const dropType = e.dataTransfer.getData("type");
     const dropEl = document.querySelector(`[data-type="${dropType}"]`);
-
     const target = e.currentTarget.dataset.filter;
 
-    // Remove drop from screen
     if (dropEl) dropEl.remove();
 
-    // Check match
     if (
-  (dropType === "clean" && target === "clean") ||
-  ((dropType === "dirty1" || dropType === "dirty2" || dropType === "dirty3") && target === "level3")
-) {
+      (dropType === "clean" && target === "clean") ||
+      ((dropType === "dirty1" ||
+        dropType === "dirty2" ||
+        dropType === "dirty3") &&
+        target === "level3")
+    ) {
       score += 10;
       showFeedback("Filtered!");
     } else {
@@ -152,5 +202,29 @@ function showFeedback(text) {
   setTimeout(() => {
     feedback.style.opacity = 0;
   }, 1000);
+}
+
+function launchConfetti() {
+  const duration = 3 * 1000;
+  const end = Date.now() + duration;
+
+  (function frame() {
+    confetti({
+      particleCount: 4,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+    });
+    confetti({
+      particleCount: 4,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
 }
 
